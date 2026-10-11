@@ -232,7 +232,10 @@ def _win_install_service(role: str) -> str:
         return f"windows service: {WINSVC} (as {acct})"
     # The service can't log on as the user until their password is set
     # (services.msc → Remocon-Agent → Log On): use the logon task meanwhile and
-    # install again once the password is in.
+    # install again once the password is in. Left on Automatic, it would start
+    # at boot as LocalSystem — the wrong home, no claude login — and take the
+    # port before the task does, so it waits on Manual until then.
+    _ps(f"Stop-Service {WINSVC} -Force -EA SilentlyContinue; Set-Service {WINSVC} -StartupType Manual")
     return (_win_install(role) + f"  ({WINSVC} service installed but logs on as LocalSystem — set the "
             "user's password in services.msc → Log On, then run this again to switch over)")
 

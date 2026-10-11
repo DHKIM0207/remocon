@@ -97,6 +97,8 @@ def _make_handler(cfg: dict, tunnels: TunnelManager | None = None):
                 return self._serve_static("index.html")
             if u.path.startswith("/assets/"):
                 return self._serve_static(u.path.lstrip("/"))
+            if u.path == "/favicon.ico":   # browsers ask for this regardless of <link rel=icon>
+                return self._serve_static("assets/favicon.svg")
             if u.path == "/api/status":
                 return self._json({"version": __version__, "os": os_name(),
                                    "tunnels": tunnels.states() if tunnels else {}})

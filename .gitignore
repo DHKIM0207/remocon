@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+.DS_Store
+# never commit a real config: it holds the shared secrets
+config.json
+*.config.json
+!*.example.json

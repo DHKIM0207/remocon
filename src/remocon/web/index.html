@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>Remocon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/assets/tokens.css">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body class="nav content">
+<header>
+  <button class="iconbtn solid" id="mobile-back" onclick="showNav()" data-i18n-title="← 노드"><i data-ic="back"></i></button>
+  <h1 class="brand"><span class="logo"><i data-ic="signal"></i></span>Remocon</h1>
+  <span class="sp"></span>
+  <div class="hdr-group prefs">
+    <select id="defmodel" onchange="saveDefModel(this.value)" data-i18n-title="기본 모델 (새 세션·이어가기에 적용)"></select>
+    <select id="defeffort" onchange="setDefaultEffort(this.value)" data-i18n-title="기본 노력 (새 세션·이어가기에 적용)"></select>
+  </div>
+  <div class="hdr-group">
+    <button class="ghost" onclick="openAddMachine()"><i data-ic="plus"></i><span data-i18n="머신 추가">머신 추가</span></button>
+    <button class="iconbtn solid" id="acctbtn" onclick="openAccounts()" data-i18n-title="클로드 계정 전환"><i data-ic="user"></i></button>
+    <button class="iconbtn solid" id="langbtn" onclick="setLang(LANG==='ko'?'en':'ko')" title="Language">KO</button>
+    <button class="iconbtn solid" onclick="loadRegistry()" data-i18n-title="전체 새로고침"><i data-ic="refresh"></i></button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="mgrbar">
+      <button class="mgr-open" onclick="openManager()" data-i18n-title="전 머신을 총괄하는 매니저 세션 열기"><i data-ic="target"></i><span data-i18n="매니저 세션">매니저 세션</span></button>
+      <button class="iconbtn" onclick="openManager(true)" data-i18n-title="초기화 — 세션 종료 후 새로 시작"><i data-ic="reset"></i></button>
+      <button class="iconbtn del" onclick="deleteManager()" data-i18n-title="삭제 — 매니저 세션 기록 삭제"><i data-ic="trash"></i></button>
+    </div>
+    <div class="fsearch pill-search" id="fsearch">
+      <span class="lead"><i data-ic="search"></i></span>
+      <input class="searchbox" id="fq" spellcheck="false" autocomplete="off"
+             data-i18n-ph="폴더 검색 · Enter로 전체 세션 검색" placeholder="폴더 검색 · Enter로 전체 세션 검색"
+             oninput="filterFolders(this.value)"
+             onkeydown="if(event.key==='Escape'){this.value='';filterFolders('');}
+                        else if(event.key==='Enter'){searchAllSessions(this.value);}">
+      <button class="iconbtn sm clear" data-i18n-title="지우기" onclick="document.getElementById('fq').value='';filterFolders('')"><i data-ic="x"></i></button>
+    </div>
+    <div class="sec-title" data-i18n="머신 · 폴더">머신 · 폴더</div>
+    <div id="nodes"></div>
+  </nav>
+  <main class="main" id="main">
+    <div class="empty"><div class="big" data-i18n="폴더를 고르세요">폴더를 고르세요</div>
+      <div data-i18n="왼쪽에서 머신의 폴더를 고르면 세션이 보입니다. 폴더 추가는 머신 옆 ＋, 새 세션은 폴더 안에서.">왼쪽에서 머신의 폴더를 고르면 세션이 보입니다. 폴더 추가는 머신 옆 ＋, 새 세션은 폴더 안에서.</div></div>
+  </main>
+</div>
+
+<footer id="statusbar">
+  <span class="st busy" id="st-busy" hidden><span class="mdot"></span><span id="st-busy-msg"></span></span>
+  <span class="st" id="st-machines"></span>
+  <span class="sp"></span>
+  <span class="st" id="st-tunnels"></span>
+  <span class="st" id="st-ver"></span>
+</footer>
+
+<div id="tabbar">
+  <button id="tab-nav" class="on" onclick="tabGo('nav')"><i data-ic="folder"></i><span data-i18n="폴더">폴더</span></button>
+  <button id="tab-content" onclick="tabGo('content')"><i data-ic="list"></i><span data-i18n="세션">세션</span></button>
+  <button id="tab-search" onclick="tabGo('search')"><i data-ic="search"></i><span data-i18n="검색">검색</span></button>
+  <button id="tab-acct" onclick="openAccounts()"><i data-ic="user"></i><span data-i18n="계정">계정</span></button>
+  <button id="tab-more" onclick="tabGo('prefs')"><i data-ic="sliders"></i><span data-i18n="설정">설정</span></button>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-bg" id="addm" onclick="if(event.target.id==='addm')closeAddM()">
+  <div class="modal">
+    <h3 data-i18n="머신 추가">머신 추가</h3>
+    <div class="modal-body">
+      <div class="hint" data-i18n="새 컴퓨터에서 1회 실행 (SSH키·OpenSSH·Python 준비):">새 컴퓨터에서 1회 실행 (SSH키·OpenSSH·Python 준비):</div>
+      <div class="oslabel"><i data-ic="monitor"></i><span data-i18n="Windows — 관리자 PowerShell">Windows — 관리자 PowerShell</span></div>
+      <div class="cmd" id="enroll-cmd" onclick="copyCmd(this)" data-i18n-title="클릭해서 복사"></div>
+      <div class="oslabel"><i data-ic="server"></i><span data-i18n="Linux — 터미널 (sudo 비번 입력)">Linux — 터미널 (sudo 비번 입력)</span></div>
+      <div class="cmd" id="enroll-cmd-linux" onclick="copyCmd(this)" data-i18n-title="클릭해서 복사"></div>
+      <div class="oslabel"><i data-ic="laptop"></i><span data-i18n="macOS — 터미널">macOS — 터미널</span></div>
+      <div class="cmd" id="enroll-cmd-mac" onclick="copyCmd(this)" data-i18n-title="클릭해서 복사"></div>
+      <div class="hint" style="margin:var(--s-4) 0 var(--s-2)" data-i18n="그 다음 아래 정보로 등록 → 자동 배포 (OS 자동 감지):">그 다음 아래 정보로 등록 → 자동 배포 (OS 자동 감지):</div>
+      <div class="formgrid">
+        <label for="am-name" data-i18n="닉네임">닉네임</label><input id="am-name" class="searchbox" data-i18n-ph="예: 작업용 데스크탑" placeholder="예: 작업용 데스크탑">
+        <label for="am-host" data-i18n="호스트/IP">호스트/IP</label><input id="am-host" class="searchbox" data-i18n-ph="예: 192.168.1.50 또는 tailscale IP" placeholder="예: 192.168.1.50 또는 tailscale IP">
+        <label for="am-user" data-i18n="SSH 유저">SSH 유저</label><input id="am-user" class="searchbox" data-i18n-ph="예: alice" placeholder="예: alice">
+        <label for="am-port" data-i18n="SSH 포트">SSH 포트</label><input id="am-port" class="searchbox" value="22">
+      </div>
+    </div>
+    <div class="modal-foot"><span class="sp"></span>
+      <button class="ghost" onclick="closeAddM()" data-i18n="취소">취소</button>
+      <button class="primary" onclick="submitAddM()" data-i18n="등록 + 배포">등록 + 배포</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="tx" onclick="if(event.target.id==='tx')closeTx()">
+  <div class="modal wide">
+    <h3 id="tx-title" data-i18n="대화 미리보기">대화 미리보기</h3>
+    <div class="msgs" id="tx-body"></div>
+    <div class="modal-foot" id="tx-foot-claude"><div class="cur" id="tx-meta"></div>
+      <select id="tx-model"></select>
+      <select id="tx-effort"></select>
+      <button class="ghost" onclick="handoff('codex')" data-i18n-title="이 대화를 Codex 새 세션으로 이어갑니다"><span class="badge agent codex dotonly"></span><span data-i18n="Codex로 전환">Codex로 전환</span></button>
+      <button class="ghost" onclick="txResume(true)" data-i18n="포크">포크</button>
+      <button class="ghost" onclick="closeTx()" data-i18n="닫기">닫기</button>
+      <button class="primary" onclick="txResume(false)"><i data-ic="play"></i><span data-i18n="이어가기">이어가기</span></button></div>
+    <div id="tx-attach" class="attachbar" style="display:none"></div>
+    <div class="modal-foot" id="tx-foot-codex" style="display:none">
+      <input type="file" id="tx-file" accept="image/*" multiple style="display:none" onchange="for(const f of this.files)attachImage(f);this.value=''">
+      <button class="iconbtn solid" onclick="$('#tx-file').click()" data-i18n-title="이미지 첨부 (또는 입력창에 붙여넣기)"><i data-ic="clip"></i></button>
+      <input id="tx-input" class="searchbox" style="flex:1;min-width:160px;border-radius:var(--r-pill)" data-i18n-ph="Codex에게 메시지… (이미지 붙여넣기 가능, Enter 전송)" placeholder="Codex에게 메시지… (이미지 붙여넣기 가능, Enter 전송)"
+             onkeydown="if(event.key==='Enter')txSend()"
+             onpaste="for(const it of (event.clipboardData||{}).items||[]){if(it.type.startsWith('image/')){attachImage(it.getAsFile());event.preventDefault();}}">
+      <button class="primary" onclick="txSend()" data-i18n="보내기">보내기</button>
+      <button class="ghost" onclick="openTerm(TX.mid,TX.cwd,TX.sessionId);closeTx()" data-i18n-title="터미널에서 인터랙티브로 이어가기"><i data-ic="terminal"></i><span data-i18n="터미널">터미널</span></button>
+      <button class="ghost" onclick="handoff('claude')" data-i18n-title="이 대화를 Claude 새 세션으로"><span class="badge agent claude dotonly"></span><span data-i18n="Claude로 전환">Claude로 전환</span></button>
+      <button class="ghost" onclick="closeTx()" data-i18n="닫기">닫기</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="acct" onclick="if(event.target.id==='acct')closeAccounts()">
+  <div class="modal">
+    <h3 data-i18n="클로드 계정">클로드 계정</h3>
+    <div class="modal-body">
+      <div class="row" style="margin-bottom:var(--s-4)">
+        <span class="lbl" data-i18n="머신">머신</span>
+        <select id="acct-machine" class="block grow" onchange="openAccounts(this.value)"></select>
+      </div>
+      <div id="acct-list"></div>
+      <div id="acct-org" style="display:none;margin-top:var(--s-3)">
+        <div class="lbl" style="margin-bottom:6px" data-i18n="로그인할 조직">로그인할 조직</div>
+        <div class="row" style="flex-wrap:wrap">
+          <select id="acct-org-sel" class="block grow" onchange="acctOrgSel()" style="min-width:180px"></select>
+          <input id="acct-org-uuid" class="searchbox grow" style="min-width:180px;display:none" spellcheck="false" placeholder="00000000-0000-0000-0000-000000000000">
+          <button class="primary" onclick="acctLoginGo()" data-i18n="로그인 주소 받기">로그인 주소 받기</button>
+        </div>
+        <div class="hint" style="margin-top:6px" data-i18n="처음 쓰는 조직은 '브라우저에서 선택'으로 한 번 로그인하면 다음부터 목록에 나옵니다.">처음 쓰는 조직은 '브라우저에서 선택'으로 한 번 로그인하면 다음부터 목록에 나옵니다.</div>
+      </div>
+      <div id="acct-login" style="display:none;margin-top:var(--s-3)">
+        <div class="hint" style="margin-bottom:6px" data-i18n="아래 주소를 열어 로그인한 뒤, 받은 코드를 붙여넣으세요.">아래 주소를 열어 로그인한 뒤, 받은 코드를 붙여넣으세요.</div>
+        <a id="acct-url" class="cmd" target="_blank" rel="noopener" style="display:block;text-decoration:none;margin-bottom:var(--s-2)"></a>
+        <div class="row">
+          <input id="acct-code" class="searchbox grow" spellcheck="false" data-i18n-ph="여기에 코드 붙여넣기" placeholder="여기에 코드 붙여넣기"
+                 onkeydown="if(event.key==='Enter')acctSubmitCode()">
+          <button class="primary" onclick="acctSubmitCode()" data-i18n="확인">확인</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="cur" id="acct-msg"></span>
+      <input id="acct-new" class="searchbox" style="flex:0 0 140px;border-radius:var(--r-pill)" spellcheck="false" data-i18n-ph="새 계정 이름" placeholder="새 계정 이름">
+      <button onclick="acctCreate()"><i data-ic="plus"></i><span data-i18n="추가">추가</span></button>
+      <button class="ghost" onclick="closeAccounts()" data-i18n="닫기">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="agpick" onclick="if(event.target.id==='agpick')$('#agpick').classList.remove('show')">
+  <div class="modal narrow">
+    <h3 id="ag-title" data-i18n="새 세션">새 세션</h3>
+    <div id="ag-path" class="crumbs mono"></div>
+    <!-- step 1: choose the agent -->
+    <div id="ag-step1" class="agentpick">
+      <button class="agentcard claude" onclick="agPick('claude')"><span class="adot"></span>Claude</button>
+      <button class="agentcard codex" onclick="agPick('codex')"><span class="adot"></span>Codex</button>
+    </div>
+    <!-- step 2: model + start -->
+    <div id="ag-step2" class="modal-body" style="display:none">
+      <div id="ag-claude-row" class="row" style="margin-bottom:var(--s-4)">
+        <select id="ag-model" class="block grow"></select>
+        <select id="ag-effort" class="block grow"></select>
+      </div>
+      <div id="ag-codex-row" class="row" style="display:none;margin-bottom:var(--s-4)">
+        <select id="ag-cxmodel" class="block grow">
+          <option value="" data-i18n="기본값 (config.toml)">기본값 (config.toml)</option>
+          <option value="gpt-5.5">gpt-5.5</option>
+          <option value="gpt-5.4">gpt-5.4</option>
+          <option value="gpt-5.4-mini">gpt-5.4-mini</option>
+          <option value="gpt-5.3-codex-spark">gpt-5.3-codex-spark</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="iconbtn solid" onclick="agBack()" data-i18n-title="← 뒤로"><i data-ic="back"></i></button>
+        <button class="primary lg grow" id="ag-start" onclick="agStart()"><i data-ic="play"></i><span data-i18n="세션 시작">세션 시작</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading"><div class="box"><div class="spinner"></div><div id="loading-msg"></div></div></div>
+
+<div class="modal-bg" id="picker" onclick="if(event.target.id==='picker')closePicker()">
+  <div class="modal">
+    <h3 id="pk-title" data-i18n="폴더 추가">폴더 추가</h3>
+    <div class="hint" style="padding:0 var(--s-6) var(--s-2)" data-i18n="Codex 세션이 앱에 뜨려면 그 폴더를 Codex 데스크톱 앱에서도 프로젝트로 추가해야 합니다. 아래 목록엔 Codex 세션이 있는 폴더만 뜨고, 없는 폴더는 직접 고르세요.">Codex 세션이 앱에 뜨려면 그 폴더를 Codex 데스크톱 앱에서도 프로젝트로 추가해야 합니다. 아래 목록엔 Codex 세션이 있는 폴더만 뜨고, 없는 폴더는 직접 고르세요.</div>
+    <div class="crumbs" id="pk-crumbs"></div>
+    <div id="pk-codex" class="pk-codex" style="display:none"></div>
+    <div style="display:flex;min-height:160px;flex:1;overflow:hidden">
+      <div id="pk-drives" class="pk-drives" style="display:none"></div>
+      <div class="dirlist" id="pk-list"></div>
+    </div>
+    <div class="pk-direct">
+      <input id="pk-path" data-i18n-ph="또는 경로 직접 입력 후 Enter" placeholder="또는 경로 직접 입력 후 Enter" spellcheck="false" onkeydown="if(event.key==='Enter')pickTyped()">
+      <button onclick="pickTyped()" data-i18n="추가">추가</button>
+    </div>
+    <div class="modal-foot"><div class="cur"><span data-i18n="선택:">선택:</span> <code id="pk-cur"></code></div>
+      <button class="ghost" onclick="closePicker()" data-i18n="취소">취소</button>
+      <button class="primary" onclick="pickHere()" data-i18n="이 폴더 추가">이 폴더 추가</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="dlg" onclick="if(event.target.id==='dlg')dlgCancel()">
+  <div class="modal narrow">
+    <h3 id="dlg-title">확인</h3>
+    <div class="modal-body" style="white-space:pre-wrap;word-break:break-word" id="dlg-msg"></div>
+    <div id="dlg-inwrap" style="padding:0 var(--s-6) var(--s-2)"><input id="dlg-input" class="searchbox" spellcheck="false"></div>
+    <div class="modal-foot"><span class="sp"></span>
+      <button class="ghost" onclick="dlgCancel()" data-i18n="취소">취소</button>
+      <button class="primary" id="dlg-ok" onclick="dlgOk()" data-i18n="확인">확인</button></div>
+  </div>
+</div>
+
+<script src="/assets/icons.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>

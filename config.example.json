@@ -1,0 +1,25 @@
+{
+  "secret": "REPLACE_WITH_RANDOM_HEX (python -c \"import secrets;print(secrets.token_hex(32))\")",
+  "claudePath": "/path/to/claude",
+  "selfId": "local",
+  "selfName": "my-laptop",
+  "agent":   { "host": "127.0.0.1", "port": 8766 },
+  "control": { "host": "127.0.0.1", "port": 8765 },
+  "skillSync": { "intervalMin": 10 },
+  "ui": { "lang": "ko", "defaultModel": "", "defaultEffort": "", "showCodex": true },
+  "machines": [
+    {
+      "id": "workpc",
+      "name": "Work PC",
+      "host": "192.168.1.50",
+      "sshUser": "alice",
+      "sshPort": 22,
+      "os": "windows",
+      "agentPort": 8766,
+      "localPort": 9101,
+      "secret": "PER_MACHINE_RANDOM_HEX",
+      "pythonExe": "C:\\Users\\alice\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "claudePath": "C:\\Users\\alice\\.local\\bin\\claude.exe"
+    }
+  ]
+}

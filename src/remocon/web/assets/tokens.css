@@ -1,0 +1,60 @@
+/* Remocon design tokens — see docs/DESIGN.md. Dark only; every other
+   stylesheet refers to these names, never to raw values. */
+:root {
+  color-scheme: dark;
+
+  /* surfaces: depth through shade */
+  --bg:          #121212;
+  --surface:     #181818;
+  --surface-2:   #1f1f1f;
+  --surface-3:   #252525;
+  --surface-4:   #2a2a2a;
+
+  /* text */
+  --text:        #ffffff;
+  --text-2:      #b3b3b3;
+  --text-3:      #cbcbcb;
+
+  /* accent (functional only) + semantic */
+  --accent:      #1ed760;
+  --accent-edge: #1db954;
+  --on-accent:   #000000;
+  --negative:    #f3727f;
+  --warning:     #ffa42b;
+  --info:        #539df5;
+
+  /* content colors: agent identity, badge-sized only */
+  --agent-claude: #d97757;
+  --agent-codex:  #ffffff;
+
+  /* lines */
+  --line:        #4d4d4d;
+  --line-2:      #7c7c7c;
+
+  /* shadows */
+  --shadow-1: rgba(0,0,0,.3) 0 8px 8px;
+  --shadow-2: rgba(0,0,0,.5) 0 8px 24px;
+  --inset:    rgb(18,18,18) 0 1px 0, rgb(124,124,124) 0 0 0 1px inset;
+  --inset-2:  rgb(18,18,18) 0 1px 0, rgb(77,77,77) 0 0 0 1px inset;
+
+  /* radius */
+  --r-badge: 2px;  --r-input: 4px;  --r-card: 6px;  --r-section: 8px;
+  --r-panel: 12px; --r-pill: 9999px; --r-circle: 50%;
+
+  /* spacing (8px base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px;
+
+  /* type */
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR",
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  --fs-title: 24px; --fs-head: 18px; --fs-body: 16px; --fs-ui: 14px;
+  --fs-small: 12px; --fs-badge: 10.5px; --fs-micro: 10px;
+
+  /* layout */
+  --sidebar-w: 320px;
+  --header-h: 56px;
+  --statusbar-h: 32px;
+  --tabbar-h: 60px;
+}

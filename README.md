@@ -1,5 +1,13 @@
 # 📡 Remocon
 
+<p align="center">
+  <a href="docs/media/remocon-promo.mp4">
+    <img src="docs/media/remocon-promo.gif" alt="Remocon 소개 영상: 여러 머신의 Claude Code·Codex 세션을 브라우저 탭 하나에서" width="800">
+  </a>
+  <br>
+  <sub>30초 소개 영상 · 클릭하면 MP4로 볼 수 있습니다</sub>
+</p>
+
 여러 컴퓨터에 흩어진 **Claude Code**와 **OpenAI Codex** 세션을 브라우저 탭 하나에서
 다루는 자체 호스팅 리모컨입니다. Windows, macOS, Linux 어디서든 허브를 띄우고, SSH로
 닿는 어느 머신이든 에이전트로 붙일 수 있습니다.
